@@ -1,0 +1,2 @@
+class UndefinedMappingError(Exception):
+    pass

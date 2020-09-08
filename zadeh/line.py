@@ -1,4 +1,4 @@
-from .constants import RANGE_MAX, RANGE_MIN
+from constants import RANGE_MAX, RANGE_MIN
 
 
 class Line:

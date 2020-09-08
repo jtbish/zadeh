@@ -1,4 +1,4 @@
-from .constants import MATCHING_MIN, MATCHING_MAX
+from constants import MATCHING_MAX, MATCHING_MIN
 
 
 def logical_or_max(membership_vals):

@@ -1,9 +1,9 @@
 import abc
 from collections import namedtuple
 
-from .constants import RANGE_MAX, RANGE_MIN
-from .domain import Domain
-from .line import Line
+from constants import RANGE_MAX, RANGE_MIN
+from domain import Domain
+from line import Line
 
 Point = namedtuple("Point", ["x", "y"])
 
@@ -110,7 +110,8 @@ class PiecewiseLinearMembershipFunc(MembershipFuncABC):
             result = RANGE_MIN
 
         assert result is not None
-        assert RANGE_MIN <= result <= RANGE_MAX, f"{result}"
+        result = max(RANGE_MIN, result)
+        result = min(RANGE_MAX, result)
         return result
 
 

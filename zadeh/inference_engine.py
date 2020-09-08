@@ -2,11 +2,10 @@ from collections import OrderedDict, namedtuple
 
 import numpy as np
 
-from .constants import RANGE_MAX, RANGE_MIN
+from constants import MATCHING_MIN
+from error import UndefinedMappingError
 
 MatchingRecord = namedtuple("MatchingRecord", ["rule", "matching_degree"])
-MIN_MATCHING_DEGREE = RANGE_MIN
-MAX_MATCHING_DEGREE = RANGE_MAX
 
 
 class InferenceEngine:
@@ -40,17 +39,17 @@ class InferenceEngine:
                                                    self._logical_and_strat,
                                                    self._logical_or_strat)
             matching_records.append(MatchingRecord(rule, matching_degree))
-        return tuple(matching_records)
+        return matching_records
 
     def classify(self, input_vec):
         score_array = self.score(input_vec)
         filtered_score_array = \
             self._filter_nan_entries_from_score_array(score_array)
-        has_valid_scores = len(filtered_score_array > 0)
-        if has_valid_scores:
+        has_at_least_one_score = len(filtered_score_array) > 0
+        if has_at_least_one_score:
             return max(filtered_score_array, key=filtered_score_array.get)
         else:
-            return self._try_default_class_label()
+            return self._use_default_class_label()
 
     def _filter_nan_entries_from_score_array(self, score_array):
         return OrderedDict({
@@ -59,10 +58,8 @@ class InferenceEngine:
             if (not np.isnan(score))
         })
 
-    def _try_default_class_label(self):
-        default_class_label = self._rule_base.default_class_label
-        if default_class_label is None:
-            # TODO error
-            assert False
+    def _use_default_class_label(self):
+        if self._rule_base.has_default_class_label():
+            return self._rule_base.default_class_label
         else:
-            return default_class_label
+            raise UndefinedMappingError()
