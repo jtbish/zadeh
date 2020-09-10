@@ -3,7 +3,7 @@ from collections import OrderedDict
 
 import numpy as np
 
-from constants import MATCHING_MAX, MATCHING_MIN
+from .constants import MATCHING_MAX, MATCHING_MIN
 
 
 def _init_score_array(class_labels):

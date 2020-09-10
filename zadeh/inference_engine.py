@@ -2,8 +2,8 @@ from collections import OrderedDict, namedtuple
 
 import numpy as np
 
-from constants import MATCHING_MIN
-from error import UndefinedMappingError
+from .constants import MATCHING_MIN
+from .error import UndefinedMappingError
 
 MatchingRecord = namedtuple("MatchingRecord", ["rule", "matching_degree"])
 
