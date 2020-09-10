@@ -12,12 +12,12 @@ def _init_score_array(class_labels):
 
 class AggregationStrategyABC(metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def __call__(self, matching_records, class_labels):
+    def __call__(self, match_set, class_labels):
         raise NotImplementedError
 
 
 class AvgMatchingAggregation(AggregationStrategyABC):
-    def __call__(self, matching_records, class_labels):
+    def __call__(self, match_set, class_labels):
         score_array = _init_score_array(class_labels)
 
         matching_sums = {
@@ -25,7 +25,7 @@ class AvgMatchingAggregation(AggregationStrategyABC):
             for class_label in class_labels
         }
         advocation_counts = {class_label: 0 for class_label in class_labels}
-        for matching_record in matching_records:
+        for matching_record in match_set:
             class_label = matching_record.rule.consequent
             matching_sums[class_label] += matching_record.matching_degree
             advocation_counts[class_label] += 1
@@ -40,7 +40,7 @@ class AvgMatchingAggregation(AggregationStrategyABC):
 
 
 class MatchingSumAggregation(AggregationStrategyABC):
-    def __call__(self, matching_records, class_labels):
+    def __call__(self, match_set, class_labels):
         score_array = _init_score_array(class_labels)
 
         matching_sums = {
@@ -48,7 +48,7 @@ class MatchingSumAggregation(AggregationStrategyABC):
             for class_label in class_labels
         }
         advocation_counts = {class_label: 0 for class_label in class_labels}
-        for matching_record in matching_records:
+        for matching_record in match_set:
             class_label = matching_record.rule.consequent
             matching_sums[class_label] += matching_record.matching_degree
             advocation_counts[class_label] += 1
@@ -59,5 +59,43 @@ class MatchingSumAggregation(AggregationStrategyABC):
                 raw_matching_sum = matching_sums[class_label]
                 bounded_matching_sum = min(MATCHING_MAX, raw_matching_sum)
                 score_array[class_label] = bounded_matching_sum
+
+        return score_array
+
+
+class MaxMatchingAggregation(AggregationStrategyABC):
+    def __call__(self, match_set, class_labels):
+        score_array = _init_score_array(class_labels)
+
+        matching_degrees = {class_label: [] for class_label in class_labels}
+        for matching_record in match_set:
+            class_label = matching_record.rule.consequent
+            matching_degrees[class_label].append(
+                matching_record.matching_degree)
+
+        for class_label in class_labels:
+            advocation_count = len(matching_degrees[class_label])
+            if advocation_count > 0:
+                score = max(matching_degrees[class_label])
+                score_array[class_label] = score
+
+        return score_array
+
+
+class MinMatchingAggregation(AggregationStrategyABC):
+    def __call__(self, match_set, class_labels):
+        score_array = _init_score_array(class_labels)
+
+        matching_degrees = {class_label: [] for class_label in class_labels}
+        for matching_record in match_set:
+            class_label = matching_record.rule.consequent
+            matching_degrees[class_label].append(
+                matching_record.matching_degree)
+
+        for class_label in class_labels:
+            advocation_count = len(matching_degrees[class_label])
+            if advocation_count > 0:
+                score = min(matching_degrees[class_label])
+                score_array[class_label] = score
 
         return score_array
