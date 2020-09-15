@@ -2,7 +2,7 @@ from collections import OrderedDict, namedtuple
 
 import numpy as np
 
-from .constants import MATCHING_MIN
+from .constants import MATCHING_MIN, SCORE_MIN, SCORE_MAX
 from .error import UndefinedMappingError
 
 MatchingRecord = namedtuple("MatchingRecord", ["rule", "matching_degree"])
@@ -22,12 +22,16 @@ class InferenceEngine:
         self._logical_or_strat = logical_or_strat
         self._aggregation_strat = aggregation_strat
 
+    @property
+    def ling_vars(self):
+        return self._ling_vars
+
     def score(self, rule_base, input_vec):
         """Takes input vector of features, returns array of score values,
         one for each class."""
         matching_records = self._compute_matching_records(rule_base, input_vec)
-        match_set = self._build_match_set(matching_records)
-        score_array = self._aggregation_strat(match_set, self._class_labels)
+        score_array = self._aggregation_strat(matching_records, self._class_labels)
+        assert self._score_array_is_valid(score_array)
         return score_array
 
     def _compute_matching_records(self, rule_base, input_vec):
@@ -39,30 +43,21 @@ class InferenceEngine:
             matching_records.append(MatchingRecord(rule, matching_degree))
         return matching_records
 
-    def _build_match_set(self, matching_records):
-        return [
-            matching_record for matching_record in matching_records
-            if matching_record.matching_degree > MATCHING_MIN
-        ]
+    def _score_array_is_valid(self, score_array):
+        return np.all([SCORE_MIN <= score <= SCORE_MAX for score in
+            score_array.values()])
 
     def classify(self, rule_base, input_vec):
         score_array = self.score(rule_base, input_vec)
-        filtered_score_array = \
-            self._filter_nan_entries_from_score_array(score_array)
-        has_at_least_one_score = len(filtered_score_array) > 0
-        if has_at_least_one_score:
-            return max(filtered_score_array, key=filtered_score_array.get)
+        if not self._all_scores_are_min(score_array):
+            return max(score_array, key=score_array.get)
         else:
-            return self._use_default_class_label(rule_base)
+            self._try_default_class_label(rule_base)
 
-    def _filter_nan_entries_from_score_array(self, score_array):
-        return OrderedDict({
-            class_label: score
-            for (class_label, score) in score_array.items()
-            if (not np.isnan(score))
-        })
+    def _all_scores_are_min(self, score_array):
+        return np.all([score == SCORE_MIN for score in score_array.values()])
 
-    def _use_default_class_label(self, rule_base):
+    def _try_default_class_label(self, rule_base):
         if rule_base.has_default_class_label():
             return rule_base.default_class_label
         else:

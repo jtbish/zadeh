@@ -1,3 +1,5 @@
+import numpy as np
+
 from .constants import MATCHING_MAX, MATCHING_MIN
 
 
@@ -7,6 +9,10 @@ def logical_or_max(membership_vals):
 
 def logical_and_min(membership_vals):
     return _operate_on_membership_vals(membership_vals, operator=min)
+
+
+def logical_and_prod(membership_vals):
+    return _operate_on_membership_vals(membership_vals, operator=np.prod)
 
 
 def _operate_on_membership_vals(membership_vals, operator):
