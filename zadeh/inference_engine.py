@@ -26,6 +26,10 @@ class InferenceEngine:
     def ling_vars(self):
         return self._ling_vars
 
+    @property
+    def class_labels(self):
+        return self._class_labels
+
     def score(self, rule_base, input_vec):
         """Takes input vector of features, returns array of score values,
         one for each class."""
