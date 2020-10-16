@@ -1,7 +1,7 @@
 import abc
 from collections import OrderedDict
 
-from .constants import CONSEQUENT_MIN, CONSEQUENT_MAX, SCORE_MIN
+from .constants import CONSEQUENT_MIN, CONSEQUENT_MAX, SCORE_MIN, SCORE_MAX
 
 
 def _init_score_array(class_labels):
@@ -30,6 +30,50 @@ class MaximumAggregation(AggregationStrategyABC):
             implication_vals = [_implication(matching_record, class_label) for
                     matching_record in matching_records]
             score_array[class_label] = max(implication_vals)
+
+        return score_array
+
+
+class BoundedSumAggregation(AggregationStrategyABC):
+    def __call__(self, matching_records, class_labels):
+        score_array = _init_score_array(class_labels)
+
+        for class_label in class_labels:
+            sum_ = sum([_implication(matching_record, class_label) for
+                matching_record in matching_records])
+            bounded_sum = min(sum_, SCORE_MAX)
+            score_array[class_label] = bounded_sum
+
+        return score_array
+
+
+class AvgAggregation(AggregationStrategyABC):
+    """Average over all supports for given class."""
+    def __call__(self, matching_records, class_labels):
+        score_array = _init_score_array(class_labels)
+
+        for class_label in class_labels:
+            implication_vals = [_implication(matching_record, class_label) for
+                    matching_record in matching_records]
+            score_array[class_label] = \
+                sum(implication_vals)/len(implication_vals)
+
+        return score_array
+
+
+class BiasedAvgAggregation(AggregationStrategyABC):
+    """Average over non-zero supports for given class."""
+    def __call__(self, matching_records, class_labels):
+        score_array = _init_score_array(class_labels)
+
+        for class_label in class_labels:
+            implication_vals = [_implication(matching_record, class_label) for
+                    matching_record in matching_records]
+            valid_implication_vals = [val for val in implication_vals if val
+                    != SCORE_MIN]
+            if len(valid_implication_vals) != 0:
+                score_array[class_label] = \
+                    sum(valid_implication_vals)/len(valid_implication_vals)
 
         return score_array
 

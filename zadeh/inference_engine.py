@@ -56,7 +56,7 @@ class InferenceEngine:
         if not self._all_scores_are_min(score_array):
             return max(score_array, key=score_array.get)
         else:
-            self._try_default_class_label(rule_base)
+            return self._try_default_class_label(rule_base)
 
     def _all_scores_are_min(self, score_array):
         return np.all([score == SCORE_MIN for score in score_array.values()])
