@@ -12,3 +12,6 @@ class FuzzyRuleBase:
 
     def __iter__(self):
         return iter(self._rules)
+
+    def __len__(self):
+        return len(self._rules)

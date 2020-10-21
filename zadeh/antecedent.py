@@ -37,32 +37,29 @@ class CNFAntecedent(AntecedentABC):
         for mf_usage_bits in membership_func_usages:
             for bit in mf_usage_bits:
                 assert bit == self._ACTIVE or bit == self._INACTIVE
-            at_least_one_active_bit = (mf_usage_bits.count(_self._ACTIVE) > 0)
+            at_least_one_active_bit = mf_usage_bits.count(self._ACTIVE) > 0
             assert at_least_one_active_bit
         self._membership_func_usages = tuple(membership_func_usages)
 
-    def eval(self,
-             ling_vars,
-             input_vec,
-             logical_and_strat,
-             logical_or_strat):
+    def eval(self, ling_vars, input_vec, logical_and_strat, logical_or_strat):
         vals_to_and = []
         for (mf_usage_bits, ling_var, input_scalar) in \
                 zip(self._membership_func_usages, ling_vars, input_vec):
-            all_bits_active = (mf_usage_bits.count(self._ACTIVE) ==
-                    len(mf_usage_bits)
+            all_bits_active = \
+                mf_usage_bits.count(self._ACTIVE) == len(mf_usage_bits)
             if all_bits_active:
                 continue  # generalises over feature, don't compute anything
             else:
-                vals_to_and.append(self._eval_disjunction(mf_usage_bits,
-                    ling_var, input_scalar, logical_or_strat))
+                vals_to_and.append(
+                    self._eval_disjunction(mf_usage_bits, ling_var,
+                                           input_scalar, logical_or_strat))
         return logical_and_strat(vals_to_and)
-                        
+
     def _eval_disjunction(self, mf_usage_bits, ling_var, input_scalar,
                           logical_or_strat):
         vals_to_or = []
         for (mf_idx, bit) in enumerate(mf_usage_bits):
             if bit == self._ACTIVE:
-                vals_to_or.append(ling_var.eval_membership_func(mf_idx,
-                    input_scalar))
+                vals_to_or.append(
+                    ling_var.eval_membership_func(mf_idx, input_scalar))
         return logical_or_strat(vals_to_or)
