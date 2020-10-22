@@ -1,9 +1,10 @@
 import abc
 from collections import namedtuple
 
-from .constants import RANGE_MAX, RANGE_MIN
+from .constants import FLOAT_TOL, RANGE_MAX, RANGE_MIN
 from .domain import Domain
 from .line import Line
+from .util import trunc_val
 
 Point = namedtuple("Point", ["x", "y"])
 
@@ -40,6 +41,7 @@ class PiecewiseLinearMembershipFunc(MembershipFuncABC):
     def _create_lines(self, points):
         lines = self._create_lines_from_points(points)
         lines = self._keep_non_vertical_lines(lines)
+        assert len(lines) > 0
         return lines
 
     def _create_lines_from_points(self, points):
@@ -110,8 +112,8 @@ class PiecewiseLinearMembershipFunc(MembershipFuncABC):
             result = RANGE_MIN
 
         assert result is not None
-        result = max(RANGE_MIN, result)
-        result = min(RANGE_MAX, result)
+        assert (RANGE_MIN - FLOAT_TOL) <= result <= (RANGE_MAX + FLOAT_TOL)
+        result = trunc_val(result, RANGE_MIN, RANGE_MAX)
         return result
 
 

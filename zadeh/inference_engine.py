@@ -53,13 +53,7 @@ class InferenceEngine:
         if not self._all_scores_are_min(score_array):
             return max(score_array, key=score_array.get)
         else:
-            return self._try_default_class_label(rule_base)
+            raise UndefinedMappingError
 
     def _all_scores_are_min(self, score_array):
         return np.all([score == SCORE_MIN for score in score_array.values()])
-
-    def _try_default_class_label(self, rule_base):
-        if rule_base.has_default_class_label():
-            return rule_base.default_class_label
-        else:
-            raise UndefinedMappingError

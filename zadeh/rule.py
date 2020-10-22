@@ -14,3 +14,6 @@ class FuzzyRule:
                         logical_or_strat=None):
         return self._antecedent.eval(ling_vars, input_vec, logical_and_strat,
                                      logical_or_strat)
+
+    def num_spec_fuzzy_decision_regions(self):
+        return self._antecedent.num_spec_fuzzy_decision_regions()

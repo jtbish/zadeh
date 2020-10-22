@@ -1,12 +1,24 @@
 import abc
 
+import numpy as np
+
 UNSPECIFIED = -1
 
 
 class AntecedentABC(metaclass=abc.ABCMeta):
     """Antecedent stores a mapping between input features and linguistic values
     selected for those features."""
-    pass
+    @abc.abstractmethod
+    def eval(self,
+             ling_vars,
+             input_vec,
+             logical_and_strat,
+             logical_or_strat=None):
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def num_spec_fuzzy_decision_regions(self):
+        raise NotImplementedError
 
 
 class ConjunctiveAntecedent(AntecedentABC):
@@ -27,6 +39,9 @@ class ConjunctiveAntecedent(AntecedentABC):
                     ling_var.eval_membership_func(membership_func_idx,
                                                   input_scalar))
         return logical_and_strat(membership_vals)
+
+    def num_spec_fuzzy_decision_regions(self):
+        raise NotImplementedError
 
 
 class CNFAntecedent(AntecedentABC):
@@ -53,6 +68,8 @@ class CNFAntecedent(AntecedentABC):
                 vals_to_and.append(
                     self._eval_disjunction(mf_usage_bits, ling_var,
                                            input_scalar, logical_or_strat))
+        result = logical_and_strat(vals_to_and)
+        #print(f"Conjunction: {vals_to_and} -> {result}")
         return logical_and_strat(vals_to_and)
 
     def _eval_disjunction(self, mf_usage_bits, ling_var, input_scalar,
@@ -62,4 +79,13 @@ class CNFAntecedent(AntecedentABC):
             if bit == self._ACTIVE:
                 vals_to_or.append(
                     ling_var.eval_membership_func(mf_idx, input_scalar))
+        result = logical_or_strat(vals_to_or)
+        #print(f"Disjunction: {mf_usage_bits} -> {vals_to_or} -> {result}")
         return logical_or_strat(vals_to_or)
+
+    def num_spec_fuzzy_decision_regions(self):
+        active_bits_per_ling_var = [
+            mf_usage_bits.count(self._ACTIVE)
+            for mf_usage_bits in self._membership_func_usages
+        ]
+        return np.prod(active_bits_per_ling_var)

@@ -1,3 +1,8 @@
+import numpy as np
+
+from .constants import FRBS_COMPLEXITY_MAX, FRBS_COMPLEXITY_MIN
+
+
 class FuzzyRuleBasedSystem:
     def __init__(self, inference_engine, ling_vars, rule_base):
         self._inference_engine = inference_engine
@@ -23,3 +28,11 @@ class FuzzyRuleBasedSystem:
     def classify(self, input_vec):
         return self._inference_engine.classify(self._ling_vars,
                                                self._rule_base, input_vec)
+
+    def calc_complexity(self):
+        num_fuzzy_decision_regions = \
+            np.prod([lv.num_membership_funcs for lv in self._ling_vars])
+        num_spec_fdrs = self._rule_base.num_spec_fuzzy_decision_regions()
+        complexity = num_spec_fdrs/num_fuzzy_decision_regions
+        assert FRBS_COMPLEXITY_MIN <= complexity <= FRBS_COMPLEXITY_MAX
+        return complexity

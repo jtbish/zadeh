@@ -1,6 +1,7 @@
 import numpy as np
 
-from .constants import MATCHING_MAX, MATCHING_MIN
+from .constants import FLOAT_TOL, MATCHING_MAX, MATCHING_MIN
+from .util import trunc_val
 
 
 def logical_or_max(membership_vals):
@@ -22,9 +23,14 @@ def logical_and_prod(membership_vals):
 def _operate_on_membership_vals(membership_vals, operator):
     assert len(membership_vals) > 0
     result = operator(membership_vals)
-    assert MATCHING_MIN <= result <= MATCHING_MAX
+    assert (MATCHING_MIN - FLOAT_TOL) <= result <= (MATCHING_MAX + FLOAT_TOL)
+    result = trunc_val(result, MATCHING_MIN, MATCHING_MAX)
     return result
 
 
 def _probor(membership_vals):
-    return sum(membership_vals) - np.prod(membership_vals)
+    only_one_val = len(membership_vals) == 1
+    if only_one_val:
+        return membership_vals[0]
+    else:
+        return sum(membership_vals) - np.prod(membership_vals)
