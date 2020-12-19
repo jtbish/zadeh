@@ -25,4 +25,4 @@ class FuzzyRuleBasedSystem:
                                                self._rule_base, input_vec)
 
     def calc_complexity(self):
-        return self._rule_base.num_spec_fuzzy_decision_regions()
+        return self._rule_base.calc_num_spec_fuzzy_decision_regions()

@@ -17,7 +17,7 @@ class AntecedentABC(metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def num_spec_fuzzy_decision_regions(self):
+    def calc_num_spec_fuzzy_decision_regions(self):
         raise NotImplementedError
 
 
@@ -40,7 +40,7 @@ class ConjunctiveAntecedent(AntecedentABC):
                                                   input_scalar))
         return logical_and_strat(membership_vals)
 
-    def num_spec_fuzzy_decision_regions(self):
+    def calc_num_spec_fuzzy_decision_regions(self):
         raise NotImplementedError
 
 
@@ -60,16 +60,11 @@ class CNFAntecedent(AntecedentABC):
         vals_to_and = []
         for (mf_usage_bits, ling_var, input_scalar) in \
                 zip(self._membership_func_usages, ling_vars, input_vec):
-            all_bits_active = \
-                mf_usage_bits.count(self._ACTIVE) == len(mf_usage_bits)
-            if all_bits_active:
-                continue  # generalises over feature, don't compute anything
-            else:
-                vals_to_and.append(
-                    self._eval_disjunction(mf_usage_bits, ling_var,
-                                           input_scalar, logical_or_strat))
-        result = logical_and_strat(vals_to_and)
-        #print(f"Conjunction: {vals_to_and} -> {result}")
+            vals_to_and.append(
+                self._eval_disjunction(mf_usage_bits, ling_var,
+                                       input_scalar, logical_or_strat))
+        #  result = logical_and_strat(vals_to_and)
+        #  print(f"Conjunction: {vals_to_and} -> {result}")
         return logical_and_strat(vals_to_and)
 
     def _eval_disjunction(self, mf_usage_bits, ling_var, input_scalar,
@@ -79,11 +74,11 @@ class CNFAntecedent(AntecedentABC):
             if bit == self._ACTIVE:
                 vals_to_or.append(
                     ling_var.eval_membership_func(mf_idx, input_scalar))
-        result = logical_or_strat(vals_to_or)
-        #print(f"Disjunction: {mf_usage_bits} -> {vals_to_or} -> {result}")
+        #  result = logical_or_strat(vals_to_or)
+        #  print(f"Disjunction: {mf_usage_bits} -> {vals_to_or} -> {result}")
         return logical_or_strat(vals_to_or)
 
-    def num_spec_fuzzy_decision_regions(self):
+    def calc_num_spec_fuzzy_decision_regions(self):
         active_bits_per_ling_var = [
             mf_usage_bits.count(self._ACTIVE)
             for mf_usage_bits in self._membership_func_usages

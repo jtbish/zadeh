@@ -2,9 +2,10 @@ class FuzzyRuleBase:
     def __init__(self, rules):
         self._rules = tuple(rules)
 
-    def num_spec_fuzzy_decision_regions(self):
+    def calc_num_spec_fuzzy_decision_regions(self):
         return sum(
-            [rule.num_spec_fuzzy_decision_regions() for rule in self._rules])
+            [rule.calc_num_spec_fuzzy_decision_regions()
+                for rule in self._rules])
 
     def __iter__(self):
         return iter(self._rules)
