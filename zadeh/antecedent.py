@@ -20,6 +20,13 @@ class AntecedentABC(metaclass=abc.ABCMeta):
     def calc_num_spec_fuzzy_decision_regions(self):
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def __str__(self):
+        raise NotImplementedError
+
+    def __repr__(self):
+        return str(self)
+
 
 class ConjunctiveAntecedent(AntecedentABC):
     def __init__(self, membership_func_idxs):
@@ -41,6 +48,9 @@ class ConjunctiveAntecedent(AntecedentABC):
         return logical_and_strat(membership_vals)
 
     def calc_num_spec_fuzzy_decision_regions(self):
+        raise NotImplementedError
+
+    def __str__(self):
         raise NotImplementedError
 
 
@@ -84,3 +94,12 @@ class CNFAntecedent(AntecedentABC):
             for mf_usage_bits in self._membership_func_usages
         ]
         return np.prod(active_bits_per_ling_var)
+
+    def __str__(self):
+        str_ = ""
+        for mf_usage_bits in self._membership_func_usages:
+            substr = ""
+            for bit in mf_usage_bits:
+                substr += str(bit)
+            str_ += f"|{substr}|"
+        return str_

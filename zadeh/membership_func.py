@@ -27,13 +27,21 @@ class MembershipFuncABC(metaclass=abc.ABCMeta):
     def fuzzify(self, input_scalar):
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def __str__(self):
+        raise NotImplementedError
+
+    def __repr__(self):
+        return str(self)
+
 
 class PiecewiseLinearMembershipFunc(MembershipFuncABC):
     """Fuzzy set / membership function composed of a series of linear sections,
     e.g. triangle or trapezoid."""
     def __init__(self, domain, points, name):
         super().__init__(domain, name)
-        self._lines = self._create_lines(points)
+        self._points = points
+        self._lines = self._create_lines(self._points)
         self._non_min_matching_domain = \
             self._cache_non_min_matching_domain(self._lines)
         self._non_min_lines = self._cache_non_min_lines(self._lines)
@@ -115,6 +123,9 @@ class PiecewiseLinearMembershipFunc(MembershipFuncABC):
         assert (RANGE_MIN - FLOAT_TOL) <= result <= (RANGE_MAX + FLOAT_TOL)
         result = trunc_val(result, RANGE_MIN, RANGE_MAX)
         return result
+
+    def __str__(self):
+        return str(self._points)
 
 
 def make_triangular_membership_func(domain, base_lhs_x, apex_x, base_rhs_x,

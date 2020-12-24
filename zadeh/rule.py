@@ -4,6 +4,10 @@ class FuzzyRule:
         self._consequent = consequent
 
     @property
+    def antecedent(self):
+        return self._antecedent
+
+    @property
     def consequent(self):
         return self._consequent
 

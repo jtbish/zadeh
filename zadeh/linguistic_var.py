@@ -32,3 +32,9 @@ class LinguisticVar:
         for membership_func in self._membership_funcs:
             result.append(membership_func.fuzzify(input_scalar))
         return tuple(result)
+
+    def __str__(self):
+        return ", ".join([str(mf) for mf in self._membership_funcs])
+
+    def __repr__(self):
+        return str(self)

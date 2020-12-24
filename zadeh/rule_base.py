@@ -12,3 +12,12 @@ class FuzzyRuleBase:
 
     def __len__(self):
         return len(self._rules)
+
+    def __repr__(self):
+        return str(self)
+
+    def __str__(self):
+        str_ = ""
+        for rule in self._rules:
+            str_ += f"{str(rule.antecedent)} -> {str(rule.consequent)}\n"
+        return str_
