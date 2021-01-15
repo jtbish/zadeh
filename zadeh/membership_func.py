@@ -46,6 +46,10 @@ class PiecewiseLinearMembershipFunc(MembershipFuncABC):
             self._cache_non_min_matching_domain(self._lines)
         self._non_min_lines = self._cache_non_min_lines(self._lines)
 
+    @property
+    def points(self):
+        return self._points
+
     def _create_lines(self, points):
         lines = self._create_lines_from_points(points)
         lines = self._keep_non_vertical_lines(lines)
